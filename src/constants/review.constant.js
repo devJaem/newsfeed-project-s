@@ -12,5 +12,4 @@ export const REVIEW_MESSAGES = {
   ACCESS_DENIED: '접근 권환이 없습니다.',
 
   LOGS_FETCH_SUCCESS: '로그 조회에 성공 하였습니다.',
-  
 };
