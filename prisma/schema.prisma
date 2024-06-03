@@ -12,7 +12,7 @@ model User {
   email        String        @unique
   password     String
   nickname     String
-  age          Int
+  birth        String
   role         String
   naverId      String?
   kakaoId      String?

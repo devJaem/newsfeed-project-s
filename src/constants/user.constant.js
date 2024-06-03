@@ -9,6 +9,8 @@ export const USER_MESSAGES = {
 
   PROFILE_SUCESS: '조회에 성공했습니다.',
 
+  PROFILE_UPDATED: '정보가 수정되었습니다.',
+
   ACCOUNT_DELETED: '회원탈퇴가 성공하였습니다.',
 
   RENEW_TOKEN: '재발급에 성공했습니다.',

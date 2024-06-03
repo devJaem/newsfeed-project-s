@@ -4,7 +4,6 @@ import { ENV } from './constants/env.constant.js';
 import { errorHandler } from './middlewares/error-handling.middleware.js';
 import logMiddleware from './middlewares/log.middleware.js';
 import router from './routers/route.js';
-import cookieParser from 'cookie-parser';
 
 const app = express();
 const PORT = ENV.PORT;

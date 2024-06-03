@@ -1,11 +1,13 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { prisma } from '../utils/prisma.util.js';
 import { catchError } from '../middlewares/error-handling.middleware.js';
 import { ENV } from '../constants/env.constant.js';
 import { USER_MESSAGES } from '../constants/user.constant.js';
-import { accessMiddleware} from '../middlewares/require-access-token.middleware.js'
+import { accessMiddleware } from '../middlewares/require-access-token.middleware.js';
 import { refreshMiddleware } from '../middlewares/require-refresh-token.middleware.js';
+import { validateUpdateProfile } from '../middlewares/validations/sign.validation.middleware.js';
 
 const userRouter = express.Router();
 
@@ -109,6 +111,102 @@ userRouter.delete(
     return res.status(200).json({
       status: 200,
       message: USER_MESSAGES.ACCOUNT_DELETED,
+    });
+  })
+);
+
+/* 내 정보 조회 API */
+userRouter.get(
+  '/profile',
+  accessMiddleware,
+  catchError(async (req, res) => {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        message: USER_MESSAGES.USER_NOT_FOUND,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.PROFILE_SUCESS,
+      data: {
+        userId: user.id,
+        email: user.email,
+        nickname: user.nickname,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  })
+);
+
+/* 특정 사용자 정보 조회 API */
+userRouter.get(
+  '/user/:id',
+  catchError(async (req, res) => {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(req.params.id, 10) },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        message: USER_MESSAGES.USER_NOT_FOUND,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.PROFILE_SUCESS,
+      data: {
+        userId: user.id,
+        nickname: user.nickname,
+        createdAt: user.createdAt,
+      },
+    });
+  })
+);
+
+/* 회원 정보 수정 API */
+userRouter.patch(
+  '/update-profile',
+  accessMiddleware,
+  validateUpdateProfile, // 회원정보 수정 유효성 검증 미들웨어 추가
+  catchError(async (req, res) => {
+    const { id } = req.user;
+    const { nickname, password, birth } = req.body;
+
+    const updateData = {};
+    if (nickname) updateData.nickname = nickname;
+    if (password) {
+      const hashPassword = await bcrypt.hash(password, parseInt(ENV.HASH_ROUND));
+      updateData.password = hashPassword;
+    }
+    if (birth) updateData.birth = birth;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: id },
+      data: updateData,
+    });
+
+    return res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.PROFILE_UPDATED,
+      data: {
+        userId: updatedUser.id,
+        email: updatedUser.email,
+        nickname: updatedUser.nickname,
+        birth: updatedUser.birth,
+        role: updatedUser.role,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+      },
     });
   })
 );
