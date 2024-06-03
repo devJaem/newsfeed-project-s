@@ -92,4 +92,27 @@ userRouter.get(
   })
 );
 
+/* 회원탈퇴 API */
+userRouter.delete(
+  '/delete-account',
+  accessMiddleware,
+  catchError(async (req, res) => {
+    const { id } = req.user;
+
+    // 사용자 삭제 (캐스케이딩 설정을 통해 관련 데이터도 자동 삭제)
+    await prisma.user.delete({
+      where: { id: id },
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+    });
+
+    return res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.ACCOUNT_DELETED,
+    });
+  })
+);
+
 export default userRouter;
