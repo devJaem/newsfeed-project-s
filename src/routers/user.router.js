@@ -17,7 +17,7 @@ userRouter.get(
     const user = req.user;
     res.status(200).json({
       status: 200,
-      message: USER_MESSAGES.PROFILE_SUCCESS,
+      message: USER_MESSAGES.PROFILE_SUCESS,
       data: {
         userId: user.id,
         email: user.email,
@@ -95,7 +95,7 @@ userRouter.get(
 
     return res.status(200).json({
       status: 200,
-      message: USER_MESSAGES.LOGOUT_SUCCESS,
+      message: USER_MESSAGES.LOGOUT_SUCESS,
       data: {
         userId: id,
       },
