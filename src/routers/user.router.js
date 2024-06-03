@@ -94,7 +94,7 @@ userRouter.get(
 
 /* 회원탈퇴 API */
 userRouter.delete(
-  '/delete-account',
+  '/profile',
   accessMiddleware,
   catchError(async (req, res) => {
     const { id } = req.user;
@@ -148,7 +148,7 @@ userRouter.get(
 
 /* 특정 사용자 정보 조회 API */
 userRouter.get(
-  '/user/:id',
+  '/:id',
   catchError(async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { id: parseInt(req.params.id, 10) },
@@ -175,7 +175,7 @@ userRouter.get(
 
 /* 회원 정보 수정 API */
 userRouter.patch(
-  '/update-profile',
+  '/profile',
   accessMiddleware,
   validateUpdateProfile, // 회원정보 수정 유효성 검증 미들웨어 추가
   catchError(async (req, res) => {
