@@ -3,8 +3,7 @@ import cookieParser from 'cookie-parser';
 import { ENV } from './constants/env.constant.js';
 import { errorHandler } from './middlewares/error-handling.middleware.js';
 import logMiddleware from './middlewares/log.middleware.js';
-import router from './routers/route.js';
-import CommentsRouter from './routers/comments.router.js';
+import router from './routers/router.js';
 
 const app = express();
 const PORT = ENV.PORT;

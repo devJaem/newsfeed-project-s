@@ -8,7 +8,7 @@ const router = express.Router();
 // 댓글 생성 api
 
 router.post(
-  '/v1/comments/:reviewId',
+  '/:reviewId',
   accessMiddleware,
   async (req, res, next) => {
     const { reviewId } = req.params;
@@ -43,7 +43,7 @@ router.post(
 
 // 댓글 조회 api
 router.get(
-    '/v1/comments/:reviewId',
+    '/:reviewId',
     async(req, res, next) => {
         const {reviewId} = req.params;
 
@@ -68,9 +68,8 @@ router.get(
     });
 
 // 댓글 수정 api
-
 router.patch(
-    'v1/comments/:reviewId',
+    '/:reviewId',
     accessMiddleware,
     async(req, res, next) => {
         const {reviewId} = req.params;
@@ -101,7 +100,7 @@ router.patch(
 
 // 댓글 삭제 api
 router.delete(
-    '/v1/comments/:reviewId',
+    '/:reviewId',
     accessMiddleware,
     async(req, res, next) => {
         const {reviewId} = req.params;
@@ -121,8 +120,5 @@ router.delete(
           return res.status(200).json({status: 200, message : "댓글 삭제 완료"});
     }
 );
-
-
-
 
 export default router;
