@@ -2,33 +2,11 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import { catchError } from '../middlewares/error-handling.middleware.js';
-import { accessMiddleware } from '../middlewares/require-access-token.middleware.js';
-import { refreshMiddleware } from '../middlewares/require-refresh-token.middleware.js';
 import { ENV } from '../constants/env.constant.js';
 import { USER_MESSAGES } from '../constants/user.constant.js';
+import { refreshMiddleware } from '../middlewares/refresh.middleware.js';
 
 const userRouter = express.Router();
-
-/* 사용자 정보 조회 API */
-userRouter.get(
-  '/me',
-  accessMiddleware,
-  catchError(async (req, res) => {
-    const user = req.user;
-    res.status(200).json({
-      status: 200,
-      message: USER_MESSAGES.PROFILE_SUCESS,
-      data: {
-        userId: user.id,
-        email: user.email,
-        nickname: user.nickname,
-        role: user.role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
-    });
-  })
-);
 
 /* RefreshToken 재발급 API */
 userRouter.post(
@@ -71,11 +49,15 @@ userRouter.post(
       });
     });
 
+    // HttpOnly 쿠키에 새로운 리프레시 토큰 저장
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+    });
+
     return res.status(200).json({
       status: 200,
       message: USER_MESSAGES.RENEW_TOKEN,
       accessToken: accessToken,
-      refreshToken: refreshToken,
     });
   })
 );
@@ -91,6 +73,12 @@ userRouter.get(
       where: {
         userId: id,
       },
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // 프로덕션 환경에서만 secure 설정
+      sameSite: 'Strict', // Cross-site request를 방지
     });
 
     return res.status(200).json({

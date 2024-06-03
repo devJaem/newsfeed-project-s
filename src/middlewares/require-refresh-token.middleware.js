@@ -7,7 +7,7 @@ import { catchError } from './error-handling.middleware.js';
 
 /* RefreshToken 검증, 재발급 미들웨어 */
 const refreshMiddleware = catchError(async (req, res, next) => {
-  const refreshToken = req.headers.authorization;
+  const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) {
     return res.status(400).json({
       status: 400,
