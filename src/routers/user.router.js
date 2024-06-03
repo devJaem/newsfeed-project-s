@@ -4,7 +4,8 @@ import { prisma } from '../utils/prisma.util.js';
 import { catchError } from '../middlewares/error-handling.middleware.js';
 import { ENV } from '../constants/env.constant.js';
 import { USER_MESSAGES } from '../constants/user.constant.js';
-import { refreshMiddleware } from '../middlewares/refresh.middleware.js';
+import { accessMiddleware} from '../middlewares/require-access-token.middleware.js'
+import { refreshMiddleware } from '../middlewares/require-refresh-token.middleware.js';
 
 const userRouter = express.Router();
 
