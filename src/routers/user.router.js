@@ -1,121 +1,71 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import prisma from '../utils/prisma.util.js';
-import {
-  validateSignup,
-  validateSignin,
-} from '../middlewares/validations/sign.validation.middleware.js';
+import { prisma } from '../utils/prisma.util.js';
 import { catchError } from '../middlewares/error-handling.middleware.js';
+import { accessMiddleware } from '../middlewares/require-access-token.middleware.js';
+import { refreshMiddleware } from '../middlewares/require-refresh-token.middleware.js';
 import { ENV } from '../constants/env.constant.js';
-import { AUTH_MESSAGES } from '../constants/auth.constant.js';
 import { USER_MESSAGES } from '../constants/user.constant.js';
 
-const authRouter = express.Router();
+const userRouter = express.Router();
 
-/* 회원가입 API */
-authRouter.post(
-  '/sign-up',
-  validateSignup,
+/* 사용자 정보 조회 API */
+userRouter.get(
+  '/me',
+  accessMiddleware,
   catchError(async (req, res) => {
-    const createUser = req.body;
-
-    const user = await prisma.user.findFirst({
-      where: { email: createUser.email },
-    });
-    if (user) {
-      return res.status(409).json({
-        status: 409,
-        message: USER_MESSAGES.DUPLICATE_EMAIL,
-      });
-    }
-
-    const hashPassword = await bcrypt.hash(
-      createUser.password,
-      parseInt(ENV.HASH_ROUND)
-    );
-    const newUser = await prisma.user.create({
+    const user = req.user;
+    res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.PROFILE_SUCCESS,
       data: {
-        email: createUser.email,
-        password: hashPassword,
-        nickname: createUser.nickname,
-        birth: createUser.birth,
-        role: createUser.role || 'APPLICANT',
-      },
-    });
-
-    const { id, email, createdAt, updatedAt, nickname, role } = newUser;
-
-    res.status(201).json({
-      status: 201,
-      message: USER_MESSAGES.SIGN_UP_SUCCESS,
-      data: {
-        id,
-        email,
-        nickname,
-        role,
-        createdAt,
-        updatedAt,
+        userId: user.id,
+        email: user.email,
+        nickname: user.nickname,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     });
   })
 );
 
-/* 로그인 API */
-authRouter.post(
-  '/sign-in',
-  validateSignin,
+/* RefreshToken 재발급 API */
+userRouter.post(
+  '/token',
+  refreshMiddleware,
   catchError(async (req, res) => {
-    const loginUser = req.body;
-
-    const user = await prisma.user.findFirst({
-      where: { email: loginUser.email },
-    });
-    if (!user) {
-      return res.status(401).json({
-        status: 401,
-        message: AUTH_MESSAGES.INVALID_AUTH,
-      });
-    }
-
-    const match = await bcrypt.compare(loginUser.password, user.password);
-    if (!match) {
-      return res.status(401).json({
-        status: 401,
-        message: AUTH_MESSAGES.INVALID_AUTH,
-      });
-    }
+    const { id, role } = req.user;
 
     const accessToken = jwt.sign(
       {
-        userId: user.id,
-        role: user.role,
+        userId: id,
+        role: role,
       },
       ENV.ACCESS_KEY,
-      {
-        expiresIn: ENV.ACCESS_TIME,
-      }
+      { expiresIn: ENV.ACCESS_TIME }
     );
 
     const refreshToken = jwt.sign(
       {
-        userId: user.id,
-        role: user.role,
+        userId: id,
+        role: role,
       },
       ENV.REFRESH_KEY,
-      {
-        expiresIn: ENV.REFRESH_TIME,
-      }
+      { expiresIn: ENV.REFRESH_TIME }
     );
 
-    // 트랜잭션을 사용하여 기존 리프레시 토큰 삭제 후 새로 생성
+    // 트랜잭션으로 기존 리프레시 토큰을 삭제하고 새로운 토큰을 생성
     await prisma.$transaction(async (tr) => {
       await tr.refreshToken.deleteMany({
-        where: { userId: user.id },
+        where: {
+          userId: id,
+        },
       });
+
       await tr.refreshToken.create({
         data: {
-          userId: user.id,
+          userId: id,
           refreshToken: refreshToken,
         },
       });
@@ -123,13 +73,34 @@ authRouter.post(
 
     return res.status(200).json({
       status: 200,
-      message: USER_MESSAGES.SIGN_IN_SUCESS,
+      message: USER_MESSAGES.RENEW_TOKEN,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    });
+  })
+);
+
+/* 로그아웃 API */
+userRouter.get(
+  '/logout',
+  accessMiddleware,
+  catchError(async (req, res) => {
+    const { id } = req.user;
+
+    await prisma.refreshToken.deleteMany({
+      where: {
+        userId: id,
+      },
+    });
+
+    return res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.LOGOUT_SUCCESS,
       data: {
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        userId: id,
       },
     });
   })
 );
 
-export default authRouter;
+export default userRouter;
