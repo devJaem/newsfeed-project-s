@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,7 +12,7 @@ model User {
   email        String        @unique
   password     String
   nickname     String
-  birth        Int
+  age          Int
   role         String
   naverId      String?
   kakaoId      String?
@@ -36,22 +33,23 @@ model Comment {
   reviewId  Int
   content   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   likes     Like[]
+  files     File[]
 }
 
 model Review {
   id        Int      @id @default(autoincrement())
   userId    Int
-  stars     Int
+  grade     Int
   title     String
   category  String
   content   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  Comment[]
@@ -62,31 +60,33 @@ model Review {
 model Like {
   id        Int      @id @default(autoincrement())
   userId    Int
-  reviewId  Int?
-  commentId Int?
+  itemId    Int
+  itemType  ItemType
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  review    Review?  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  review    Review?  @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "reviewLikes")
+  comment   Comment? @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "commentLikes")
+
+  @@index([itemId, itemType])
 }
 
 model Follow {
   id        Int      @id @default(autoincrement())
-  follower  Int
-  followee  Int
+  senderId  Int
+  receiverId Int
   createdAt DateTime @default(now())
 
-  followerUser  User @relation("UserFollow", fields: [follower], references: [id], onDelete: Cascade)
-  followeeUser  User @relation("FollowedUser", fields: [followee], references: [id], onDelete: Cascade)
+  followerUser  User @relation("UserFollow", fields: [senderId], references: [id], onDelete: Cascade)
+  followeeUser  User @relation("FollowedUser", fields: [receiverId], references: [id], onDelete: Cascade)
 }
 
 model File {
   id         Int      @id @default(autoincrement())
   userId     Int
-  reviewId   Int?
-  fileType   String
+  itemId     Int
+  itemType   ItemType
   filename   String
   url        String
   path       String
@@ -95,7 +95,10 @@ model File {
   uploadedAt DateTime @default(now())
 
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  review     Review?  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review     Review?  @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "reviewFiles")
+  comment    Comment? @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "commentFiles")
+
+  @@index([itemId, itemType])
 }
 
 model RefreshToken {
@@ -105,4 +108,9 @@ model RefreshToken {
   createdAt    DateTime @default(now())
 
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ItemType {
+  REVIEW
+  COMMENT
 }
