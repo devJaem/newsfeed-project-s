@@ -1,5 +1,5 @@
-# 내배캠 NodeJS_5기 정재민
-### 채용 사이트 백엔드 만들기
+# 내배캠 Node.JS 4조
+### 뉴스피드 프로젝트
 ---
 ### Setting
 1. 코드 복사하기
@@ -14,7 +14,7 @@ yarn install
 
 3. <br>
 ```bash
-.env 파일 생성하기 (https://github.com/devJaem/recruit-hub/blob/main/.env.example) 참고
+.env 파일 생성하기 (https://github.com/devJaem/newsfeed-project-s/blob/main/.env.example) 참고
 ```
 
 4. 서버 실행하기
@@ -45,7 +45,7 @@ yarn run dev
 │   │       └── sign.validation.middleware.js
 │   ├── routers
 │   │   ├── auth.router.js
-│   │   ├── index.js
+│   │   ├── route.js
 │   │   ├── review.router.js
 │   │   └── user.router.js
 │   ├── utils
