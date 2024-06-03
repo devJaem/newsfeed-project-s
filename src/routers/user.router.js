@@ -78,8 +78,6 @@ userRouter.get(
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // 프로덕션 환경에서만 secure 설정
-      sameSite: 'Strict', // Cross-site request를 방지
     });
 
     return res.status(200).json({
