@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { ENV } from './constants/env.constant.js';
 import { errorHandler } from './middlewares/error-handling.middleware.js';
 import logMiddleware from './middlewares/log.middleware.js';
@@ -10,6 +11,7 @@ const PORT = ENV.PORT;
 
 app.use(logMiddleware);
 app.use(express.json());
+app.use(cookieParser());
 app.use('/api/v1',[router]);
 app.use(errorHandler);
 
