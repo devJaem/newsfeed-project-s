@@ -41,10 +41,11 @@ authRouter.post(
         nickname: createUser.nickname,
         birth: createUser.birth,
         role: createUser.role || 'APPLICANT',
+        age: createUser.age,
       },
     });
 
-    const { id, email, createdAt, updatedAt, nickname, role } = newUser;
+    const { id, email, createdAt, updatedAt, nickname, role, age } = newUser;
 
     res.status(201).json({
       status: 201,
@@ -54,6 +55,7 @@ authRouter.post(
         email,
         nickname,
         role,
+        age,
         createdAt,
         updatedAt,
       },
