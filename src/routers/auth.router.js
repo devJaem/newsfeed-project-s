@@ -40,8 +40,7 @@ authRouter.post(
         password: hashPassword,
         nickname: createUser.nickname,
         birth: createUser.birth,
-        role: createUser.role || 'APPLICANT',
-        age: createUser.age,
+        role: 'USER',
       },
     });
 
