@@ -23,7 +23,7 @@ const reviewPostSchema = joi.object({
 });
 
 /* 유효성 검증 미들웨어 생성 함수 */
-const createValidationMiddleware = (schema) => {
+const validationMiddleware = (schema) => {
     return async (req, res, next) => {
       try {
         await schema.validateAsync(req.body);
@@ -37,7 +37,7 @@ const createValidationMiddleware = (schema) => {
 
   /* 각 유효성 검증 스키마에 대한 미들웨어 생성 */
 
-  const validateReviewCreate = createValidationMiddleware(reviewPostSchema);
+  const validateReviewCreate = validationMiddleware(reviewPostSchema);
 
   export { validateReviewCreate };
 

@@ -15,6 +15,7 @@ reviewRouter.post(
     validateReviewCreate,
     catchError(async (req, res, next) =>{
         const { userId } = req.user;
+        const user = req.user;
         const { title, grade, content, category } = req.body;
         const review = await prisma.review.create({
             data:{
@@ -23,7 +24,13 @@ reviewRouter.post(
                grade,
                content,
                category,
+               user:{
+                connect: {
+                    email: user.email,
+                }
+               }
             }
+
         })
 
         return res.status(200).json({
@@ -129,13 +136,13 @@ reviewRouter.patch('/:reviewId', accessMiddleware, catchError(async (req, res, n
 
 /* 리뷰 삭제 API*/
 reviewRouter.delete('/:reviewId', accessMiddleware, catchError(async (req, res, next) => {
-    const { userId } = req.user;
+    const user = req.user;
     const { reviewId } = req.params;
 
-    const review = await prisma.review.findFirst({
+    const review = await prisma.review.findUnique({
         where:{
             id: +reviewId,
-            userId: +userId,
+            userId: +user.id,
         },
     });
 
