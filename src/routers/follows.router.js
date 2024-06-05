@@ -30,6 +30,20 @@ followsRouter.post('/:followeeId', accessMiddleware, catchError(async (req, res)
     });
   }
 
+  const existingFollow = await prisma.follow.findFirst({
+    where: {
+      followee: followeeId,
+      follower: followerId,
+    },
+  });
+
+  if (existingFollow) {
+    return res.status(409).json({
+      status: 409,
+      message: FOLLOW_MESSAGES.ALREADY_FOLLOWING,
+    });
+  }
+
   const follow = await prisma.follow.create({
     data: {
       followee: followeeId,

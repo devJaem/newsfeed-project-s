@@ -9,5 +9,7 @@ export const FOLLOW_MESSAGES = {
 
   FOLLOWEE_SUCCESS: "팔로워 조회에 성공하였습니다.",
 
+  ALREADY_FOLLOWING: "이미 팔로우 상태입니다.",
+
   FOLLOWER_SUCCESS: "팔로워 목록 조회에 성공하였습니다."
 };
