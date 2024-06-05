@@ -13,5 +13,4 @@ route.use('/reviews', reviewRouter);
 route.use('/comments', commentsRouter);
 route.use('/follows', followsRouter);
 
-
 export default route;

@@ -4,7 +4,7 @@ export const REVIEW_MESSAGES = {
   REVIEW_UPDATE_SUCCESS: '리뷰 수정에 성공하였습니다.',
 
   REVIEWS_READ_SUCCESS: '리뷰 목록 조회를 성공하였습니다.',
-  
+
   REVIEW_READ_SUCCESS: '리뷰 조회를 성공하였습니다.',
 
   REVIEW_DELETE_SUCCESS: '리뷰 삭제에 성공하였습니다.',

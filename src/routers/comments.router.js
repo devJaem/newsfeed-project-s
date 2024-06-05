@@ -32,12 +32,12 @@ router.post(
         userId: +userId, // 댓글 작성자 ID
         reviewId: +reviewId, // 댓글 작성 게시글 ID
         content: content,
-      }
+      },
     });
 
     return res.status(201).json({
       status: 201,
-      data: comment
+      data: comment,
     });
   })
 );
@@ -55,7 +55,7 @@ router.get(
     });
     if (!review)
       return res.status(404).json({
-        message: REVIEW_MESSAGES.REVIEW_NOT_FOUND
+        message: REVIEW_MESSAGES.REVIEW_NOT_FOUND,
       });
 
     const comments = await prisma.comment.findMany({
@@ -66,8 +66,9 @@ router.get(
         createdAt: 'desc',
       },
     });
-    return res.status(200).json({ status: 200, data: comments, });
-  }));
+    return res.status(200).json({ status: 200, data: comments });
+  })
+);
 
 // 댓글 수정 api
 router.patch(
@@ -86,23 +87,25 @@ router.patch(
     if (!comment)
       return res.status(404).json({
         status: 404,
-        message: "코멘트를 찾을 수가 없습니다.",
+        message: '코멘트를 찾을 수가 없습니다.',
       });
 
     const Edit_Comment = await prisma.comment.update({
       where: {
-        id: parseInt(commentId)
+        id: parseInt(commentId),
       },
       data: {
         content: content,
         user: {
           connect: {
-            id: userId
-          }
-        }
-      }
+            id: userId,
+          },
+        },
+      },
     });
-    return res.status(200).json({ status: 200, message: "댓글 수정완료", data: Edit_Comment });
+    return res
+      .status(200)
+      .json({ status: 200, message: '댓글 수정완료', data: Edit_Comment });
   })
 );
 
@@ -122,10 +125,10 @@ router.delete(
     if (!comment)
       return res.status(404).json({
         status: 404,
-        message: "댓글을 찾을수 없습니다.",
+        message: '댓글을 찾을수 없습니다.',
       });
     await prisma.comment.delete({ where: { id: parseInt(commentId) } });
-    return res.status(200).json({ status: 200, message: "댓글 삭제 완료" });
+    return res.status(200).json({ status: 200, message: '댓글 삭제 완료' });
   })
 );
 

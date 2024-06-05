@@ -185,7 +185,10 @@ userRouter.patch(
     const updateData = {};
     if (nickname) updateData.nickname = nickname;
     if (password) {
-      const hashPassword = await bcrypt.hash(password, parseInt(ENV.HASH_ROUND));
+      const hashPassword = await bcrypt.hash(
+        password,
+        parseInt(ENV.HASH_ROUND)
+      );
       updateData.password = hashPassword;
     }
     if (birth) updateData.birth = birth;
