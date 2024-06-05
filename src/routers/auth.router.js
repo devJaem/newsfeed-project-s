@@ -122,18 +122,18 @@ authRouter.post(
       });
     });
 
-        // Secure cookie에 refresh token 저장
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-        });
+    // Secure cookie에 refresh token 저장
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+    });
 
-        return res.status(200).json({
-          status: 200,
-          message: USER_MESSAGES.SIGN_IN_SUCESS,
-          data: {
-            accessToken: accessToken,
-          },
-        });
+    return res.status(200).json({
+      status: 200,
+      message: USER_MESSAGES.SIGN_IN_SUCESS,
+      data: {
+        accessToken: accessToken,
+      },
+    });
   })
 );
 
