@@ -8,22 +8,22 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  email        String        @unique
-  password     String
-  nickname     String
-  birth        String
-  role         String
-  naverId      String?
-  kakaoId      String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  comments     Comment[]
-  reviews      Review[]
-  files        File[]
-  likes        Like[]
-  followers    Follow[]      @relation("UserFollow")
-  following    Follow[]      @relation("FollowedUser")
+  id            Int           @id @default(autoincrement())
+  email         String        @unique
+  password      String
+  nickname      String
+  birth         String
+  role          String
+  naverId       String?
+  kakaoId       String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  comments      Comment[]
+  reviews       Review[]
+  files         File[]
+  likes         Like[]
+  followers     Follow[]      @relation("UserFollow")
+  following     Follow[]      @relation("FollowedUser")
   refreshTokens RefreshToken[]
 }
 
@@ -73,13 +73,13 @@ model Like {
 }
 
 model Follow {
-  id        Int      @id @default(autoincrement())
-  senderId  Int
-  receiverId Int
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  followee     Int
+  follower     Int
+  createdAt    DateTime @default(now())
 
-  followerUser  User @relation("UserFollow", fields: [senderId], references: [id], onDelete: Cascade)
-  followeeUser  User @relation("FollowedUser", fields: [receiverId], references: [id], onDelete: Cascade)
+  followerUser  User @relation("UserFollow", fields: [follower], references: [id], onDelete: Cascade)
+  followeeUser  User @relation("FollowedUser", fields: [followee], references: [id], onDelete: Cascade)
 }
 
 model File {
