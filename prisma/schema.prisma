@@ -68,7 +68,6 @@ model Like {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   review    Review?  @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "reviewLikes")
   comment   Comment? @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "commentLikes")
-
   @@index([itemId, itemType])
 }
 
