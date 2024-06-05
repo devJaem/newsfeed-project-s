@@ -28,10 +28,18 @@ yarn run dev
 ├── node_modules
 ├── prisma
 │   └── schema.prisma
+├── public
+│   ├── css
+│   │   └── index.css
+│   ├── index.html
+│   └── js
+│       └── index.js
 ├── src
+│   ├── app.js
 │   ├── constants
 │   │   ├── auth.constant.js
 │   │   ├── env.constant.js
+│   │   ├── follow.constant.js
 │   │   ├── review.constant.js
 │   │   └── user.constant.js
 │   ├── middlewares
@@ -41,17 +49,18 @@ yarn run dev
 │   │   ├── require-refresh-token.middleware.js
 │   │   ├── require-roles.middleware.js
 │   │   └── validations
-│   │       ├── review.validtation.middleware.js
+│   │       ├── review.validation.middleware.js
 │   │       └── sign.validation.middleware.js
 │   ├── routers
 │   │   ├── auth.router.js
-│   │   ├── route.js
+│   │   ├── comments.router.js
+│   │   ├── follows.router.js
 │   │   ├── review.router.js
+│   │   ├── router.js
 │   │   └── user.router.js
-│   ├── utils
-│   │   ├── jwt.util.js
-│   │   └── prisma.util.js
-│   └── app.js
+│   └── utils
+│       ├── jwt.util.js
+│       └── prisma.util.js
 ├── .env 
 ├── .env.example 
 ├── .gitignore
@@ -60,6 +69,8 @@ yarn run dev
 ├── README.md
 └── yarn.lock // npm을 사용하면 package-lock.json
 ```
+- `public`
+    - 프론트앤드 페이지를 구현하기 위한 폴더입니다.
 - `app.js`
     - **전체 어플리케이션의 시작점**입니다.
     - **미들웨어(Middleware)**와 **라우터(Router)**를 등록하며, 서버를 시작하는 역할을 담당합니다.
