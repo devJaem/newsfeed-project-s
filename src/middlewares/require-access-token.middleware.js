@@ -33,7 +33,7 @@ const accessMiddleware = catchError(async (req, res, next) => {
   }
 
   const user = await prisma.user.findUnique({
-    where: { userId: payload.userId },
+    where: { id: payload.userId },
   });
   if (!user) {
     return res.status(404).json({

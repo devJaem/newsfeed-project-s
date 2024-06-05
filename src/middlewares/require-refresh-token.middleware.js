@@ -11,19 +11,11 @@ const refreshMiddleware = catchError(async (req, res, next) => {
   if (!refreshToken) {
     return res.status(400).json({
       status: 400,
-      message: AUTH_MESSAGES.INVALID_AUTH,
+      message: AUTH_MESSAGES.NO_AUTH_INFO,
     });
   }
 
-  const token = refreshToken.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({
-      status: 401,
-      message: AUTH_MESSAGES.UNSUPPORTED_AUTH,
-    });
-  }
-
-  const { payload, error } = await validateToken(token, ENV.REFRESH_KEY);
+  const { payload, error } = await validateToken(refreshToken, ENV.REFRESH_KEY);
   if (error) {
     return res.status(401).json({
       status: 401,
@@ -34,7 +26,7 @@ const refreshMiddleware = catchError(async (req, res, next) => {
   const tokenData = await prisma.refreshToken.findFirst({
     where: {
       userId: payload.userId,
-      token: token,
+      refreshToken: refreshToken,
     },
   });
   if (!tokenData) {
@@ -46,7 +38,7 @@ const refreshMiddleware = catchError(async (req, res, next) => {
 
   const user = await prisma.user.findUnique({
     where: {
-      userId: payload.userId,
+      id: payload.userId,
     },
   });
   if (!user) {
