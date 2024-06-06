@@ -69,7 +69,6 @@ reviewRouter.get(
 /* 리뷰 상세 조회 API*/
 reviewRouter.get(
   '/:reviewId',
-  accessMiddleware,
   catchError(async (req, res, next) => {
     const { reviewId } = req.params;
     const review = await prisma.review.findUnique({
