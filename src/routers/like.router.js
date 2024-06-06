@@ -7,58 +7,79 @@ const router = express.Router();
 
 //리뷰에 좋아요 등록 api
 
-router.post(
-    '/review/:itemId',
+//리뷰에 좋아요 등록 api
+router.put(
+    '/review/:reviewId',
     accessMiddleware,
-    catchError(async(req, res) => {
-        const {itemId} = req.params;
-        const {id: userId} = req.user;
+    catchError(async (req, res) => {
+        const { reviewId } = req.params;
+        const { id: userId } = req.user;
 
+        // 리뷰가 존재하는지 확인
+        const review = await prisma.review.findUnique({
+            where: { id: parseInt(reviewId, 10) },
+        });
+
+        if (!review) {
+            return res.status(404).json({
+                status: 404,
+                message: "review를 찾을수 없습니다.",
+            });
+        }
+        if (review.userId === userId) {
+            return res.status(400).json({
+                status: 400, message: "자기 글에는 좋아요를 누를수가 없습니다."
+            });
+        }
+
+
+        // 이미 좋아요를 눌렀는지 확인
         const existingLike = await prisma.like.findFirst({
             where: {
-                userId: userId, // 좋아요를 누른 사용자 ID
-                itemId: parseInt(itemId, 10), // 좋아요를 누른 리뷰의 ID
-                itemType: 'REVIEW', // 좋아요를 누른 항목의 타입이 REVIEW인지 확인
-              },
-          });
-      
-          if (existingLike) {
-            return res.status(400).json({
-              status: 400,
-              message: '이미 좋아요를 눌렀습니다.',
-            });
-          }
+                userId: userId,
+                reviewId: parseInt(reviewId, 10),
+            },
+        });
 
-        const reviewlike = await prisma.like.create({
+        if (existingLike) {
+            await prisma.like.delete({ where: {
+                id: existingLike.id
+            }});
+            return res.status(200).json({
+                status:200, message: "좋아요를 취소하였습니다."
+            });
+        };
+
+        // 새로운 좋아요 생성
+        const reviewLike = await prisma.like.create({
             data: {
                 userId: userId,
-                itemId: parseInt(itemId, 10),
-                itemType: 'REVIEW',
+                reviewId: parseInt(reviewId, 10),
             }
         });
+
         return res.status(201).json({
             status: 201,
             message: '좋아요를 눌렀습니다.',
             data: reviewLike,
-          });
+        });
     })
 );
 
 // 리뷰의 좋아요 조회 api
 
 router.get(
-    '/review/:itemId',
-    catchError(async(req, res) => {
+    '/review/:reviewId',
+    catchError(async (req, res) => {
         const sortBy = (req.query.sort || 'desc').toLowerCase();
         const sortOption = sortBy === 'asc' ? 'asc' : 'desc';
-        const {itemId} = req.params;
+        const { reviewId } = req.params;
 
         const likeS = await prisma.like.findMany({
             where: {
-                itemType: 'REVIEW',
-                itemId: parseInt(itemId)
+                reviewId: parseInt(reviewId)
             },
-            orderBy: {createdAt: sortOption}
+            orderBy: { createdAt: sortOption }
         });
         return res.status(200).json({
             status: 200,
@@ -70,42 +91,59 @@ router.get(
 
 //댓글에 좋아요 등록 api
 
-router.post(
-    '/comment/:itemId',
+router.put(
+    '/comment/:commentId',
     accessMiddleware,
-    catchError(async(req, res) => {
-        const {itemId} = req.params;
-        const {id: userId} = req.user;
+    catchError(async (req, res) => {
+        const { commentId } = req.params;
+        const { id: userId } = req.user;
 
-        const existingLike = await prisma.like.findUnique({
-            where: {
-              userId_itemId_itemType: {
-                userId: userId, // 좋아요를 누른 사용자 ID
-                itemId: parseInt(itemId, 10), // 좋아요를 누른 리뷰의 ID
-                itemType: 'COMMENT', // 좋아요를 누른 항목의 타입이 REVIEW인지 확인
-              },
-            },
-          });
-      
-          if (existingLike) {
-            return res.status(400).json({
-              status: 400,
-              message: '이미 좋아요를 눌렀습니다.',
+        // 리뷰가 존재하는지 확인
+        const comment = await prisma.comment.findUnique({
+            where: { id: parseInt(commentId, 10) },
+        });
+
+        if (!comment) {
+            return res.status(404).json({
+                status: 404,
+                message: "comment를 찾을수 없습니다.",
             });
-          }
+        }
+        if (comment.userId === userId) {
+            return res.status(400).json({
+                status: 400, message: "자기 글에는 좋아요를 누를수가 없습니다."
+            });
+        }
+        // 이미 좋아요를 눌렀는지 확인
+        const existingLike = await prisma.like.findFirst({
+            where: {
+                userId: userId,
+                commentId: parseInt(commentId, 10),
+            },
+        });
 
-        const commentlike = await prisma.like.create({
+        if (existingLike) {
+            await prisma.like.delete({ where: { 
+                id: existingLike.id
+             }});
+            return res.status(200).json({
+                status:200, message: "좋아요를 취소하였습니다."
+            });
+        };
+
+        // 새로운 좋아요 생성
+        const commentLike = await prisma.like.create({
             data: {
                 userId: userId,
-                itemType: 'COMMENT',
-                itemId: itemId
+                commentId: parseInt(commentId, 10),
             }
         });
+
         return res.status(201).json({
             status: 201,
             message: '좋아요를 눌렀습니다.',
-            data: commentlike,
-          });
+            data: commentLike,
+        });
     })
 );
 
@@ -113,18 +151,17 @@ router.post(
 // 댓글의 좋아요 조회 api
 
 router.get(
-    '/comment/:itemId',
-    catchError(async(req, res, next) => {
+    '/comment/:commentId',
+    catchError(async (req, res, next) => {
         const sortBy = (req.query.sort || 'desc').toLowerCase();
         const sortOption = sortBy === 'asc' ? 'asc' : 'desc';
-        const {itemId} = req.params;
+        const { commentId } = req.params;
 
         const likeS = await prisma.like.findMany({
             where: {
-                itemType: 'COMMENT',
-                itemId: parseInt(itemId)
+                commentId: parseInt(commentId)
             },
-            orderBy: {createdAt: sortOption}
+            orderBy: { createdAt: sortOption }
         });
         return res.status(200).json({
             status: 200,

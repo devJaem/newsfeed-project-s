@@ -17,7 +17,7 @@ model User {
   naverId       String?
   kakaoId       String?
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  updatedAt     DateTime      @default(now())
   comments      Comment[]
   reviews       Review[]
   files         File[]
@@ -60,15 +60,17 @@ model Review {
 model Like {
   id        Int      @id @default(autoincrement())
   userId    Int
-  itemId    Int
-  itemType  ItemType
+  reviewId  Int?
+  commentId Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  review    Review?  @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "reviewLikes")
-  comment   Comment? @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "commentLikes")
-  @@index([itemId, itemType])
+  review    Review?  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([commentId])
 }
 
 model Follow {
@@ -84,8 +86,8 @@ model Follow {
 model File {
   id         Int      @id @default(autoincrement())
   userId     Int
-  itemId     Int
-  itemType   ItemType
+  reviewId   Int?
+  commentId  Int?
   filename   String
   url        String
   path       String
@@ -94,10 +96,11 @@ model File {
   uploadedAt DateTime @default(now())
 
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  review     Review?  @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "reviewFiles")
-  comment    Comment? @relation(fields: [itemId], references: [id], onDelete: Cascade, map: "commentFiles")
+  review     Review?  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  comment    Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
-  @@index([itemId, itemType])
+  @@index([reviewId])
+  @@index([commentId])
 }
 
 model RefreshToken {
@@ -107,9 +110,4 @@ model RefreshToken {
   createdAt    DateTime @default(now())
 
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum ItemType {
-  REVIEW
-  COMMENT
 }
