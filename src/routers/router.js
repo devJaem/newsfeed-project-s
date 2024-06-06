@@ -4,6 +4,7 @@ import usersRouter from './user.router.js';
 import reviewRouter from './review.router.js';
 import commentsRouter from './comments.router.js';
 import followsRouter from './follows.router.js';
+import likeRouter from './like.router.js';
 
 const route = express.Router();
 
@@ -12,5 +13,6 @@ route.use('/users', usersRouter);
 route.use('/reviews', reviewRouter);
 route.use('/comments', commentsRouter);
 route.use('/follows', followsRouter);
+route.use('/likes', likeRouter);
 
 export default route;
